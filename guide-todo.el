@@ -9,12 +9,20 @@
 
 (defun guide-v2-move-down ()
   (interactive)
-  (cl-loop repeat (guide-v2-get-fixed-schedule) do
-           (org-metadown)))
+  (let ((amount (guide-v2-get-fixed-schedule)))
+    (condition-case nil
+        (if amount
+            (cl-loop repeat amount do
+                     (org-metadown))
+          (while t
+            (org-metadown)))
+      (user-error nil))))
 
 (defun guide-v2-get-fixed-schedule ()
-  (string-to-number
-   (org-entry-get nil "GuideFixedSchedule")))
+  (let ((gfs (org-entry-get nil "GuideFixedSchedule")))
+    (if gfs
+        (string-to-number gfs)
+      nil)))
 
 (provide 'guide-todo)
 ;;; guide-todo.el ends here
