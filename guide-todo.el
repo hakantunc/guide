@@ -7,37 +7,43 @@
 
 ;;; Code:
 
-(defun guide-v2-move-down-with-date ()
-  (interactive)
-  (guide-v2-append-date)
-  (guide-v2-move-down))
+(defconst guide-history "GuideHistory")
+(defconst guide-schedule-fixed "GuideScheduleFixed")
 
-(defun guide-v2-append-date ()
-  (interactive)
-  (let ((field-name "GuideHistory"))
+(defun guide-v2-get-history ()
+  (org-entry-get-multivalued-property nil guide-history))
+
+(defun guide-v2-prepend-date ()
+  (let ((field-name guide-history))
     (apply
      #'org-entry-put-multivalued-property
      nil
      field-name
-     (append (org-entry-get-multivalued-property nil field-name)
-             (list (format-time-string "%F"))))))
+     (append (list (format-time-string "%F"))
+             (guide-v2-get-history)))))
+
+(defun guide-v2-get-fixed-schedule ()
+  (let ((gsf (org-entry-get nil guide-schedule-fixed)))
+    (if gsf
+        (string-to-number gsf)
+      nil)))
 
 (defun guide-v2-move-down ()
   (interactive)
-  (let ((amount (guide-v2-get-fixed-schedule)))
-    (condition-case nil
-        (if amount
-            (cl-loop repeat amount do
-                     (org-metadown))
-          (while t
-            (org-metadown)))
-      (user-error nil))))
+  (save-excursion
+    (let ((amount (guide-v2-get-fixed-schedule)))
+      (condition-case nil
+          (if amount
+              (cl-loop repeat amount do
+                       (org-metadown))
+            (while t
+              (org-metadown)))
+        (user-error nil)))))
 
-(defun guide-v2-get-fixed-schedule ()
-  (let ((gfs (org-entry-get nil "GuideFixedSchedule")))
-    (if gfs
-        (string-to-number gfs)
-      nil)))
+(defun guide-v2-move-down-with-date ()
+  (interactive)
+  (guide-v2-prepend-date)
+  (guide-v2-move-down))
 
 (provide 'guide-todo)
 ;;; guide-todo.el ends here
