@@ -7,6 +7,9 @@
 
 ;;; Code:
 
+(require 'cl-lib)
+(require 'dash)
+
 (defconst guide-history "GuideHistory")
 (defconst guide-schedule-fixed "GuideScheduleFixed")
 
@@ -44,6 +47,15 @@
   (interactive)
   (guide-v2-prepend-date)
   (guide-v2-move-down))
+
+(defun guide-v2-get-top-level-history ()
+  (let ((entries (-non-nil
+                  (org-map-entries
+                   (lambda ()
+                     (if (equal (org-current-level) 1)
+                         (guide-v2-get-history)
+                       nil)) nil nil))))
+    (-flatten entries)))
 
 (provide 'guide-todo)
 ;;; guide-todo.el ends here
