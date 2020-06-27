@@ -31,8 +31,30 @@
         (string-to-number gsf)
       nil)))
 
+(defun guide-clear-overlays ()
+  (interactive)
+  (ov-clear 'ov-for-guide))
+
+(defun guide-display-schedule ()
+  (interactive)
+  (guide-clear-overlays)
+  (org-map-entries
+   (lambda ()
+     (let*
+         ((p (point))
+          (l (org-current-level))
+          (v (org-entry-get nil guide-schedule-fixed))
+          (x (if v v "∞")))
+       (ov p
+           (+ p 1 l)
+           'after-string
+           (format "%2s " x)
+           'ov-for-guide t)))
+   nil nil))
+
 (defun guide-move-down ()
   (interactive)
+  (guide-clear-overlays)
   (save-excursion
     (let ((amount (guide-get-fixed-schedule)))
       (condition-case nil
