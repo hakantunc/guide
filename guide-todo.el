@@ -63,7 +63,10 @@
                        (org-metadown))
             (while t
               (org-metadown)))
-        (user-error nil)))))
+        (user-error nil))
+      (outline-hide-subtree)))
+  (org-show-children)
+  (org-show-entry))
 
 (defun guide-move-down-with-date ()
   (interactive)
